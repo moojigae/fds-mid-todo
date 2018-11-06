@@ -45,12 +45,13 @@ function drawLoginForm() {
     })
     localStorage.setItem('token', res.data.token)
     drawTodoList()
-    //임시 테스트 코드
+    // 임시 테스트 코드
     // const res2 = await api.get('/todos')
     // 토큰이 api에 저장되어야 함
     // alert(JSON.stringify(res2.data))
   })
   // 3. 문서 내부에 삽입하기
+  rootEl.textContent = ''
   rootEl.appendChild(fragment)
 }
 
@@ -63,6 +64,16 @@ async function drawTodoList(){
   // 2. 내용 채우고 이벤트 리스너 등록하기
   const todoListEl = fragment.querySelector('.todo-list')
   const todoFormEl = fragment.querySelector('.todo-form')
+  const logoutEl = fragment.querySelector('.logout')
+
+  logoutEl.addEventListener('click', e => {
+    // 비동기 작업 할 예정이 없음(서버에 요청 안보냄)
+    // 로그아웃 절차
+    // 1. 토큰 삭제
+    localStorage.removeItem('token')
+    // 2. 로그인 폼 보여주기
+    drawLoginForm()
+  })
 
   todoFormEl.addEventListener('submit', async e => {
     e.preventDefault()
@@ -84,6 +95,13 @@ async function drawTodoList(){
     // 2. 내용 채우고 이벤트 리스너 등록하기
     const bodyEl = fragment.querySelector('.body')
     const deleteEl = fragment.querySelector('.delete')
+    const completeEl = fragment.querySelector('.complete')
+
+    if (todoItem.complete){
+      completeEl.setAttribute('checked', '')
+      // complete: true가 되어 있으면 checked 붙여서 화면에 체크 표시 되게
+      // 이름만 있고 값이 없는 것을 불리연 어트리뷰트라 부름
+    }
 
     deleteEl.addEventListener('click', async e => {
       // 삭제 요청 보내고 해당 경로를 만들어서 경로에 맞는 데이터를 삭제
@@ -93,6 +111,16 @@ async function drawTodoList(){
     })
 
     bodyEl.textContent = todoItem.body
+
+    completeEl.addEventListener('click', async e =>{
+      e.preventDefault()
+      // 체크를 눌러도 체크표시 안되게
+      await api.patch('todos/' + todoItem.id, {
+        complete: !todoItem.complete
+        // 본래 값에서 반대로(true면 fasle)
+      })
+      drawTodoList()
+    })
 
     // 3. 문서 내부에 삽입하기
     todoListEl.appendChild(fragment)
@@ -112,4 +140,6 @@ if (localStorage.getItem('token')){
   drawLoginForm()
   // 아니라면 로그인 폼을 보여준다.
 }
+
+// drawLoginForm()
 // 스크립트가 로딩되면 로그인 폼이 바로 그려지게 함
