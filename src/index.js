@@ -104,4 +104,12 @@ async function drawTodoList(){
   rootEl.appendChild(fragment)
 }
 
-drawLoginForm()
+// 만약 로그인을 한 상태라면 바로 할 일 목록을 보여주고
+if (localStorage.getItem('token')){
+  // localstorage에서 없는 값을 넣으면 null이 반환되기 때문에 turthy로 가능
+  drawTodoList()
+} else {
+  drawLoginForm()
+  // 아니라면 로그인 폼을 보여준다.
+}
+// 스크립트가 로딩되면 로그인 폼이 바로 그려지게 함
