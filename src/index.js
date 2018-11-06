@@ -76,6 +76,8 @@ async function drawTodoList(){
   })
 
   todoFormEl.addEventListener('submit', async e => {
+    document.body.classList.add('loading')
+    // 바디 클래스에 로딩 붙이기
     e.preventDefault()
     const body = e.target.elements.body.value
     const res = await api.post('/todos', {
@@ -83,9 +85,16 @@ async function drawTodoList(){
       complete : false
     })
     // if (res.status === 201){
-    //   // axios는 성공하지 않으면 에러메세지를 띄움
+    // axios는 성공하지 않으면 에러메세지를 띄움
     // }
-    drawTodoList()
+    // drawTodoList 함수의 실행이 끝날 때까지 기다림
+    // promise에는 undefined가 채워짐
+    await drawTodoList()
+    // 비동기 함수(함수의 작업이 끝날 때까지 기다리는 것이 아니고 기다리지 않고 넘어감)
+    // 비동기 함수이기 때문에 이 작업이 완료 되기 전에  loading indicator가 먼저 실행 됨
+    // await를 붙이지 않으면 loading 화면이 사라지고 조금 후에 목록이 추가됨
+    // 비동기 함수를 호출했을 때 반환되는 프라미스에는 비동기 함수 내부에서 반환하는 값이 채워짐
+    document.body.classList.remove('loading')
   })
 
   list.forEach(todoItem => {
@@ -113,8 +122,14 @@ async function drawTodoList(){
     bodyEl.textContent = todoItem.body
 
     completeEl.addEventListener('click', async e =>{
-      e.preventDefault()
+      // e.preventDefault()
       // 체크를 눌러도 체크표시 안되게
+      // 주석을 풀면 비관적 업데이트로 변함
+      // 1. 사용자 입력 -> 수정 요청 -> 성공 시 화면 갱신 : 비관적 업데이트(pessmistic)
+      // 2. 사용자 입력 -> 회면 갱신 -> 수정 요청 : 낙관적 업데이트(optimistic)
+      // 낙관적업데이트는 수정 요청이 실패했을 때 원상태로 구현하기 힘들다
+      // 비관적업데이트는 loading indicator(로딩중 표시)를 사용해야함
+
       await api.patch('todos/' + todoItem.id, {
         complete: !todoItem.complete
         // 본래 값에서 반대로(true면 fasle)

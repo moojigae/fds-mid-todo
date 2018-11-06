@@ -3,3 +3,15 @@ $main-color: skyblue;
 body {
   background-color: $main-color;
 }
+
+body.loading:after{
+  //바디태그에 로딩이 붙어 있을 때 after요소를 적용
+  display: block;
+  position: fixed;
+  content : '';
+  background-color: rgba(0,0,0,0.5);
+  top : 0;
+  right : 0;
+  bottom: 0;
+  left : 0;
+}
