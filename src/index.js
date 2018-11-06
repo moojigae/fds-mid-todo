@@ -6,7 +6,8 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(function (config) {
-  // localStorage에 token이 있으면 요청에 헤더 설정, 없으면 아무것도 하지 않음
+  // localStorage에 token이 있으면 요청에 헤더 설정,
+  // 없으면 아무것도 하지 않음
   const token = localStorage.getItem('token')
   if (token) {
     config.headers = config.headers || {}
@@ -70,9 +71,10 @@ async function drawTodoList(){
       body,
       complete : false
     })
-    if (res.status === 201){
-      drawTodoList()
-    }
+    // if (res.status === 201){
+    //   // axios는 성공하지 않으면 에러메세지를 띄움
+    // }
+    drawTodoList()
   })
 
   list.forEach(todoItem => {
@@ -81,6 +83,14 @@ async function drawTodoList(){
 
     // 2. 내용 채우고 이벤트 리스너 등록하기
     const bodyEl = fragment.querySelector('.body')
+    const deleteEl = fragment.querySelector('.delete')
+
+    deleteEl.addEventListener('click', async e => {
+      // 삭제 요청 보내고 해당 경로를 만들어서 경로에 맞는 데이터를 삭제
+      await api.delete('todos/' + todoItem.id)
+      // 성공 시 할 일 목록 다시 그리기
+      drawTodoList()
+    })
 
     bodyEl.textContent = todoItem.body
 
@@ -90,6 +100,7 @@ async function drawTodoList(){
 
   // 3. 문서 내부에 삽입하기
   rootEl.textContent = ''
+  // 할 일 목록 추가 후 칸 비워주기
   rootEl.appendChild(fragment)
 }
 
